@@ -9,29 +9,55 @@ window.onload = function(){
     // Initialize the game
     Game.init();
     // Instatiate the console on the browser page
-    document.getElementById('wsRoguelike-main-display').appendChild(
-      Game.display.main.o.getContainer()
-    );
+    document.getElementById('wsRoguelike-avatar-display').appendChild(Game.getDisplay('avatar').getContainer());
+    document.getElementById('wsRoguelike-main-display').appendChild(Game.getDisplay('main').getContainer());
+    document.getElementById('wsRoguelike-message-display').appendChild(Game.getDisplay('message').getContainer());
 
   }
 };
 
 var Game = {
 
+  _DISPLAY_SPACING: 1.1,
+
   display: {
     main: {
       w: 80,
       h: 24,
       o: null
+    },
+    avatar: {
+      w: 20,
+      h: 24,
+      o: null
+    },
+    message: {
+      w: 100,
+      h: 6,
+      o: null
     }
+  },
+
+  getDisplay: function (displayId) {
+  if (this.display.hasOwnProperty(displayId)) {
+    return this.display[displayId].o;
+  }
+  return null;
   },
 
   init: function(){
     console.log("game init");
-    this.display.main.o = new ROT.Display(
-        {width: this.display.main.w,
-        hight: this.display.main.h}
-    );
+
+    for (var display_key in this.display) {
+      if (this.display.hasOwnProperty(display_key)) {
+        this.display[display_key].o = new ROT.Display(
+          {width: this.display[display_key].w,
+          height: this.display[display_key].h,
+          spacing: Game._DISPLAY_SPACING}
+        );
+      }
+    }
+console.log(this.display);
 
     var map = new ROT.Map.Uniform(80,24,
       {dugPercentage: 0.2,
