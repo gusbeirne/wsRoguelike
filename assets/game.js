@@ -13,6 +13,16 @@ window.onload = function(){
     document.getElementById('wsRoguelike-main-display').appendChild(Game.getDisplay('main').getContainer());
     document.getElementById('wsRoguelike-message-display').appendChild(Game.getDisplay('message').getContainer());
 
+    var bindEventToScreen = function(eventType) {
+      window.addEventListener(eventType, function(evt) {
+        Game.eventHandler(eventType, evt);
+        });
+      };
+    // Bind keyboard input events
+    bindEventToScreen('keypress');
+    bindEventToScreen('keydown');
+
+    Game.switchUIMode(Game.UIMode.gameStart);
   }
 };
 
@@ -69,19 +79,15 @@ var Game = {
     // );
     //map.create(this.display.main.o.DEBUG);
 
-    Game.switchUiMode(Game.UIMode.gameStart);
 
     this.renderDisplayAll();
   },
 
   renderDisplayMain: function(){
-    // Ascii art splash screen
-    this.getDisplay('main').drawText(7,11,"_____         _     _____                      ");
-    this.getDisplay('main').drawText(6,12,"|_   _|       | |   |  __ \\                     ");
-    this.getDisplay('main').drawText(8,13,"| | ___  ___| |_  | |  \\/ __ _ _ __ ___   ___ ");
-    this.getDisplay('main').drawText(8,14,"| |/ _ \\/ __| __| | | __ / _` | '_ ` _ \\ / _ \\");
-    this.getDisplay('main').drawText(8,15,"| |  __/\\__ \\ |_  | |_\\ \\ (_| | | | | | |  __/");
-    this.getDisplay('main').drawText(8,16,"\\_/\\___||___/\\__| \\_____/\\__,_|_| |_| |_|\\___|");
+    if (this._curUiMode !== null) {
+      this.getDisplay('main').clear();
+      this._curUiMode.render(this.getDisplay('main'));
+    }
   },
 
   renderDisplayAvatar: function(){
@@ -97,7 +103,16 @@ var Game = {
     this.renderDisplayMain();
     this.renderDisplayMessage();
   },
-  switchUiMode: function (newUiMode) {
+
+  eventHandler: function (eventType, evt) {
+    // When an event is received have the current ui handle it
+    if (this._curUiMode !== null) {
+        this._curUiMode.handleInput(eventType, evt);
+      //  Game.renderDisplayAll();
+    }
+  },
+
+  switchUIMode: function (newUiMode) {
     if (this._curUiMode !== null) {
       this._curUiMode.exit();
     }
