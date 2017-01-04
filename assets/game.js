@@ -21,7 +21,7 @@ window.onload = function(){
     // Bind keyboard input events
     bindEventToScreen('keypress');
     bindEventToScreen('keydown');
-
+    // Set the UI mode to gameStart
     Game.switchUIMode(Game.UIMode.gameStart);
   }
 };
@@ -72,12 +72,7 @@ var Game = {
 
     }
 
-    // var map = new ROT.Map.Uniform(80,24,
-    //   {dugPercentage: 0.2,
-    //   roomWidth: [4,10],
-    //   roomHeight: [3,9]}
-    // );
-    //map.create(this.display.main.o.DEBUG);
+
 
 
     this.renderDisplayAll();
@@ -95,7 +90,7 @@ var Game = {
   },
 
   renderDisplayMessage: function(){
-    this.getDisplay('message').drawText(0,0,"message");
+    Game.Message.render(this.display.message.o);
   },
 
   renderDisplayAll: function() {
@@ -108,7 +103,7 @@ var Game = {
     // When an event is received have the current ui handle it
     if (this._curUiMode !== null) {
         this._curUiMode.handleInput(eventType, evt);
-      //  Game.renderDisplayAll();
+        Game.renderDisplayAll();
     }
   },
 
