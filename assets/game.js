@@ -22,21 +22,23 @@ var Game = {
 
   display: {
     main: {
-      w: 80,
-      h: 24,
+      w: 60,
+      h: 30,
       o: null
     },
     avatar: {
       w: 20,
-      h: 24,
+      h: 30,
       o: null
     },
     message: {
-      w: 100,
+      w: 80,
       h: 6,
       o: null
     }
   },
+
+   _curUiMode: null,
 
   getDisplay: function (displayId) {
   if (this.display.hasOwnProperty(displayId)) {
@@ -44,6 +46,7 @@ var Game = {
   }
   return null;
   },
+
 
   init: function(){
     console.log("game init");
@@ -56,23 +59,52 @@ var Game = {
           spacing: Game._DISPLAY_SPACING}
         );
       }
-    }
-console.log(this.display);
 
-    var map = new ROT.Map.Uniform(80,24,
-      {dugPercentage: 0.2,
-      roomWidth: [4,10],
-      roomHeight: [3,9]}
-    );
+    }
+
+    // var map = new ROT.Map.Uniform(80,24,
+    //   {dugPercentage: 0.2,
+    //   roomWidth: [4,10],
+    //   roomHeight: [3,9]}
+    // );
     //map.create(this.display.main.o.DEBUG);
 
-    // Ascii art splash screen
-    this.display.main.o.drawText(17,9,"_____         _     _____                      ");
-    this.display.main.o.drawText(16,10,"|_   _|       | |   |  __ \\                     ");
-    this.display.main.o.drawText(18,11,"| | ___  ___| |_  | |  \\/ __ _ _ __ ___   ___ ");
-    this.display.main.o.drawText(18,12,"| |/ _ \\/ __| __| | | __ / _` | '_ ` _ \\ / _ \\");
-    this.display.main.o.drawText(18,13,"| |  __/\\__ \\ |_  | |_\\ \\ (_| | | | | | |  __/");
-    this.display.main.o.drawText(18,14,"\\_/\\___||___/\\__| \\_____/\\__,_|_| |_| |_|\\___|");
-  }
+    Game.switchUiMode(Game.UIMode.gameStart);
 
+    this.renderDisplayAll();
+  },
+
+  renderDisplayMain: function(){
+    // Ascii art splash screen
+    this.getDisplay('main').drawText(7,11,"_____         _     _____                      ");
+    this.getDisplay('main').drawText(6,12,"|_   _|       | |   |  __ \\                     ");
+    this.getDisplay('main').drawText(8,13,"| | ___  ___| |_  | |  \\/ __ _ _ __ ___   ___ ");
+    this.getDisplay('main').drawText(8,14,"| |/ _ \\/ __| __| | | __ / _` | '_ ` _ \\ / _ \\");
+    this.getDisplay('main').drawText(8,15,"| |  __/\\__ \\ |_  | |_\\ \\ (_| | | | | | |  __/");
+    this.getDisplay('main').drawText(8,16,"\\_/\\___||___/\\__| \\_____/\\__,_|_| |_| |_|\\___|");
+  },
+
+  renderDisplayAvatar: function(){
+    this.getDisplay('avatar').drawText(0,0,"avataravataravataravatar");
+  },
+
+  renderDisplayMessage: function(){
+    this.getDisplay('message').drawText(0,0,"message");
+  },
+
+  renderDisplayAll: function() {
+    this.renderDisplayAvatar();
+    this.renderDisplayMain();
+    this.renderDisplayMessage();
+  },
+  switchUiMode: function (newUiMode) {
+    if (this._curUiMode !== null) {
+      this._curUiMode.exit();
+    }
+    this._curUiMode = newUiMode;
+    if (this._curUiMode !== null) {
+      this._curUiMode.enter();
+    }
+    this.renderDisplayAll();
+  }
 };
