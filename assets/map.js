@@ -21,15 +21,17 @@ Game.Map.prototype.getTile = function (x,y) {
   return this.attr._tiles[x][y] || Game.Tile.nullTile;
 };
 
-Game.Map.prototype.renderOn = function (display) {
+Game.Map.prototype.renderOn = function (display,camX,camY) {
   // console.log("display is ");
   // console.dir(display);
   var dispW = display._options.width;
   var dispH = display._options.height;
+  var xStart = camX-Math.round(dispW/2);
+  var yStart = camY-Math.round(dispH/2);
   for (var x = 0; x < dispW; x++) {
     for (var y = 0; y < dispH; y++) {
       // Fetch the glyph for the tile and render it to the screen - sub in wall tiles for nullTiles / out-of-bounds
-      var tile = this.getTile(x, y);
+      var tile = this.getTile(x+xStart, y+yStart);
       if (tile.getName() == 'nullTile') {
         tile = Game.Tile.wallTile;
       }

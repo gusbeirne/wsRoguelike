@@ -59,12 +59,12 @@ Game.UIMode.gamePlay = {
     display.drawText(19,14,"Press W to Win");
     display.drawText(19,15,"Press L to Lose");
 
-    this.attr._map.renderOn(display);
+    this.attr._map.renderOn(display,this.attr._cameraX,this.attr._cameraY);
     this.renderAvatar(display);
   },
   renderAvatar: function (display) {
     Game.Symbol.AVATAR.draw(display,this.attr._avatarX-this.attr._cameraX+display._options.width/2,
-      this.attr._avatarY-this.attr._cameraY+display._options.height/2);
+                                    this.attr._avatarY-this.attr._cameraY+display._options.height/2);
   },
   renderAvatarInfo: function (display) {
     var fg = Game.UIMode.DEFAULT_COLOR_FG;
@@ -75,6 +75,17 @@ Game.UIMode.gamePlay = {
   moveAvatar: function (dx,dy) {
     this.attr._avatarX = Math.min(Math.max(0,this.attr._avatarX + dx),this.attr._mapWidth);
     this.attr._avatarY = Math.min(Math.max(0,this.attr._avatarY + dy),this.attr._mapHeight);
+    this.setCameraToAvatar();
+  },
+  moveCamera: function (dx,dy) {
+    this.setCamera(this.attr._cameraX + dx,this.attr._cameraY + dy);
+  },
+  setCamera: function (sx,sy) {
+    this.attr._cameraX = Math.min(Math.max(0,sx),this.attr._mapWidth);
+    this.attr._cameraY = Math.min(Math.max(0,sy),this.attr._mapHeight);
+  },
+  setCameraToAvatar: function () {
+    this.setCamera(this.attr._avatarX,this.attr._avatarY);
   },
   handleInput: function (inputType,inputData) {
     console.log('gamePlay inputType:');
@@ -114,18 +125,12 @@ Game.UIMode.gamePlay = {
   },
   setupPlay: function (restorationData) {
    var mapTiles = Game.util.init2DArray(this.attr._mapWidth,this.attr._mapHeight,Game.Tile.nullTile);
-   var generator = new ROT.Map.Cellular(this.attr._mapWidth,this.attr._mapHeight);
-   generator.randomize(0.5);
+   var generator = new ROT.Map.Uniform(this.attr._mapWidth,this.attr._mapHeight);
 
-   // repeated cellular automata process
-   var totalIterations = 15;
-   for (var i = 0; i < totalIterations - 1; i++) {
-     generator.create();
-   }
 
    // run again then update map
    generator.create(function(x,y,v) {
-     if (v === 1) {
+     if (v === 0) {
        mapTiles[x][y] = Game.Tile.floorTile;
      } else {
        mapTiles[x][y] = Game.Tile.wallTile;

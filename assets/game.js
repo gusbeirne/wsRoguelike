@@ -79,9 +79,6 @@ var Game = {
 
     }
 
-
-
-
     this.renderDisplayAll();
   },
 
