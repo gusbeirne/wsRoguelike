@@ -35,6 +35,17 @@ Game.UIMode.gameStart = {
 
 
 Game.UIMode.gamePlay = {
+
+  attr: {
+    _map: null,
+    _mapWidth: 300,
+    _mapHeight: 200,
+    _cameraX: 100,
+    _cameraY: 100,
+    _avatarX: 100,
+    _avatarY: 100
+  },
+
   enter: function () {
     console.log('gameplay begining');
     Game.Message.clear();
@@ -45,15 +56,10 @@ Game.UIMode.gamePlay = {
   render: function (display) {
     console.log('gamePlay render');
 
-    // var map = new ROT.Map.Uniform(80,24,
-    //   {dugPercentage: 0.2,
-    //   roomWidth: [4,10],
-    //   roomHeight: [3,9]}
-    // );
-    // map.create(display.DEBUG);
-
     display.drawText(19,14,"Press W to Win");
     display.drawText(19,15,"Press L to Lose");
+
+    this.attr._map.renderOn(display);
   },
   handleInput: function (inputType,inputData) {
     console.log('gamePlay inputType:');
@@ -67,8 +73,36 @@ Game.UIMode.gamePlay = {
       else if (((inputData.key == 'l') || (inputData.key == 'L')) && (inputData.shiftKey)) {
         Game.switchUIMode(Game.UIMode.gameLose);
       }
+      else if (inputData.key == '='){
+        Game.switchUIMode(Game.UIMode.gamePersistence);
+      }
     }
-  }
+  },
+  setupPlay: function (restorationData) {
+   var mapTiles = Game.util.init2DArray(this.attr._mapWidth,this.attr._mapHeight,Game.Tile.nullTile);
+   var generator = new ROT.Map.Cellular(this.attr._mapWidth,this.attr._mapHeight);
+   generator.randomize(0.5);
+
+   // repeated cellular automata process
+   var totalIterations = 15;
+   for (var i = 0; i < totalIterations - 1; i++) {
+     generator.create();
+   }
+
+   // run again then update map
+   generator.create(function(x,y,v) {
+     if (v === 1) {
+       mapTiles[x][y] = Game.Tile.floorTile;
+     } else {
+       mapTiles[x][y] = Game.Tile.wallTile;
+     }
+   });
+
+   // create map from the tiles
+    this.attr._map =  new Game.Map(mapTiles);
+ },
+
+
 };
 
 
@@ -146,11 +180,13 @@ Game.UIMode.gamePersistence = {
       var json_state_data = window.localStorage.getItem(Game._PERSISTANCE_NAMESPACE);
       var state_data = JSON.parse(json_state_data);
       Game.setRandomSeed(state_data._randomSeed);
+      Game.UIMode.gamePlay.setupPlay();
       Game.switchUIMode(Game.UIMode.gamePlay);
     }
   },
   newGame: function () {
     Game.setRandomSeed(5 + Math.floor(ROT.RNG.getUniform()*100000));
+    Game.UIMode.gamePlay.setupPlay();
     Game.switchUIMode(Game.UIMode.gamePlay);
   },
   localStorageAvailable: function () { // NOTE: see https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Using_the_Web_Storage_API
