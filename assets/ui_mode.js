@@ -25,10 +25,11 @@ Game.UIMode.gameStart = {
   handleInput: function (inputType,inputData) {
     console.log('gameStart inputType:');
     if (inputData.charCode !== 0) { // ignore the various modding keys - control, shift, etc.
-          Game.switchUIMode(Game.UIMode.gamePlay);
+          Game.switchUIMode(Game.UIMode.gamePersistence);
     }
   }
 };
+
 
 Game.UIMode.gamePlay = {
   enter: function () {
@@ -67,6 +68,7 @@ Game.UIMode.gamePlay = {
   }
 };
 
+
 Game.UIMode.gameWin = {
   enter: function () {
     console.log('game won');
@@ -83,6 +85,7 @@ Game.UIMode.gameWin = {
   }
 };
 
+
 Game.UIMode.gameLose = {
   enter: function () {
     console.log('game lost');
@@ -97,4 +100,67 @@ Game.UIMode.gameLose = {
   handleInput: function (inputType,inputData) {
     console.log('gameLose inputType:');
   }
+};
+
+
+Game.UIMode.gamePersistence = {
+  enter: function () {
+    console.log('entering persistence mode');
+  },
+  exit: function () {
+    console.log('gamePersistence exit');
+  },
+  render: function (display) {
+    console.log('gamePersistence render');
+    display.drawText(19,14,"[N]ew Game, [S]ave game or [L]oad Game");
+
+  },
+
+  handleInput: function (inputType,inputData) {
+    console.log('gamePersistence inputType:');
+
+    if (inputType == 'keypress') {
+      if (((inputData.key == 'n') || (inputData.key == 'N')) && (inputData.shiftKey)) {
+        this.newGame();
+      }
+      else if (((inputData.key == 'l') || (inputData.key == 'L')) && (inputData.shiftKey)) {
+        this.restoreGame();
+      }
+      else if (((inputData.key == 's') || (inputData.key == 'S')) && (inputData.shiftKey)) {
+        this.saveGame();
+      }
+    }
+
+  },
+  saveGame: function (json_state_data) {
+    if (this.localStorageAvailable()) {
+      window.localStorage.setItem(Game._PERSISTANCE_NAMESPACE, JSON.stringify(Game._game)); // .toJSON()
+      Game.switchUIMode(Game.UIMode.gamePlay);
+    }
+  },
+  restoreGame: function () {
+    if (this.localStorageAvailable()) {
+      var json_state_data = window.localStorage.getItem(Game._PERSISTANCE_NAMESPACE);
+      var state_data = JSON.parse(json_state_data);
+      Game.setRandomSeed(state_data._randomSeed);
+      Game.switchUIMode(Game.UIMode.gamePlay);
+    }
+  },
+  newGame: function () {
+    Game.setRandomSeed(5 + Math.floor(ROT.RNG.getUniform()*100000));
+    Game.switchUIMode(Game.UIMode.gamePlay);
+  },
+  localStorageAvailable: function () { // NOTE: see https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Using_the_Web_Storage_API
+  	try {
+  		var x = '__storage_test__';
+  		window.localStorage.setItem(x, x);
+  		window.localStorage.removeItem(x);
+  		return true;
+  	}
+  	catch(e) {
+      Game.Message.send('Sorry, no local data storage is available for this browser');
+  		return false;
+  	}
+  }
+
 };

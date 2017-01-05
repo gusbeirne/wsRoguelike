@@ -48,7 +48,11 @@ var Game = {
     }
   },
 
-   _curUiMode: null,
+  _curUiMode: null,
+  _randomSeed: 0,
+
+  _game: null,
+  _PERSISTANCE_NAMESPACE: 'wsRoguelikeSave',
 
   getDisplay: function (displayId) {
   if (this.display.hasOwnProperty(displayId)) {
@@ -60,6 +64,9 @@ var Game = {
 
   init: function(){
     console.log("game init");
+
+    this._game = this;
+    Game.setRandomSeed(5 + Math.floor(ROT.RNG.getUniform()*100000));
 
     for (var display_key in this.display) {
       if (this.display.hasOwnProperty(display_key)) {
@@ -116,5 +123,21 @@ var Game = {
       this._curUiMode.enter();
     }
     this.renderDisplayAll();
+  },
+
+  getRandomSeed: function () {
+  return this._randomSeed;
+  },
+
+  setRandomSeed: function (s) {
+    this._randomSeed = s;
+    console.log("using random seed "+this._randomSeed);
+    ROT.RNG.setSeed(this._randomSeed);
+  },
+
+  toJSON: function() {
+    var json = {"_randomSeed":this._randomSeed};
+    return json;
   }
+
 };
