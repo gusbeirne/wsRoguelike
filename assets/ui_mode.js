@@ -60,6 +60,21 @@ Game.UIMode.gamePlay = {
     display.drawText(19,15,"Press L to Lose");
 
     this.attr._map.renderOn(display);
+    this.renderAvatar(display);
+  },
+  renderAvatar: function (display) {
+    Game.Symbol.AVATAR.draw(display,this.attr._avatarX-this.attr._cameraX+display._options.width/2,
+      this.attr._avatarY-this.attr._cameraY+display._options.height/2);
+  },
+  renderAvatarInfo: function (display) {
+    var fg = Game.UIMode.DEFAULT_COLOR_FG;
+    var bg = Game.UIMode.DEFAULT_COLOR_BG;
+    display.drawText(1,2,"avatar x: "+this.attr._avatarX,fg,bg); // DEV
+    display.drawText(1,3,"avatar y: "+this.attr._avatarY,fg,bg); // DEV
+  },
+  moveAvatar: function (dx,dy) {
+    this.attr._avatarX = Math.min(Math.max(0,this.attr._avatarX + dx),this.attr._mapWidth);
+    this.attr._avatarY = Math.min(Math.max(0,this.attr._avatarY + dy),this.attr._mapHeight);
   },
   handleInput: function (inputType,inputData) {
     console.log('gamePlay inputType:');
@@ -75,6 +90,25 @@ Game.UIMode.gamePlay = {
       }
       else if (inputData.key == '='){
         Game.switchUIMode(Game.UIMode.gamePersistence);
+      }
+      else if (inputData.key == 'z') {
+        this.moveAvatar(-1,1);
+      } else if (inputData.key == 'x') {
+        this.moveAvatar(0,1);
+      } else if (inputData.key == 'c') {
+        this.moveAvatar(1,1);
+      } else if (inputData.key == 'a') {
+        this.moveAvatar(-1,0);
+      } else if (inputData.key == 's') {
+        // do nothing / stay still
+      } else if (inputData.key == 'd') {
+        this.moveAvatar(1,0);
+      } else if (inputData.key == 'q') {
+        this.moveAvatar(-1,-1);
+      } else if (inputData.key == 'w') {
+        this.moveAvatar(0,-1);
+      } else if (inputData.key == 'e') {
+        this.moveAvatar(1,-1);
       }
     }
   },
