@@ -1,4 +1,7 @@
 Game.UIMode = {};
+Game.UIMode.DEFAULT_COLOR_FG = '#fff';
+Game.UIMode.DEFAULT_COLOR_BG = '#000';
+Game.UIMode.DEFAULT_COLOR_STR = '%c{'+Game.UIMode.DEFAULT_COLOR_FG+'}%b{'+Game.UIMode.DEFAULT_COLOR_BG+'}';
 
 Game.UIMode.gameStart = {
   enter: function () {
