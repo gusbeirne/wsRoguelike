@@ -90,7 +90,7 @@ var Game = {
   },
 
   renderDisplayAvatar: function(){
-    this.getDisplay('avatar').drawText(0,0,"avataravataravataravatar");
+    this.getDisplay('avatar').drawText(0,0,"Avatar Info:");
   },
 
   renderDisplayMessage: function(){

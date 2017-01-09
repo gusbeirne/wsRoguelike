@@ -2,6 +2,9 @@ Game.UIMode = {};
 Game.UIMode.DEFAULT_COLOR_FG = '#fff';
 Game.UIMode.DEFAULT_COLOR_BG = '#000';
 Game.UIMode.DEFAULT_COLOR_STR = '%c{'+Game.UIMode.DEFAULT_COLOR_FG+'}%b{'+Game.UIMode.DEFAULT_COLOR_BG+'}';
+var fg = Game.UIMode.DEFAULT_COLOR_FG;
+var bg = Game.UIMode.DEFAULT_COLOR_BG;
+
 
 Game.UIMode.gameStart = {
   enter: function () {
@@ -76,6 +79,7 @@ Game.UIMode.gamePlay = {
     this.attr._avatarX = Math.min(Math.max(0,this.attr._avatarX + dx),this.attr._mapWidth);
     this.attr._avatarY = Math.min(Math.max(0,this.attr._avatarY + dy),this.attr._mapHeight);
     this.setCameraToAvatar();
+    this.renderAvatarInfo(Game.getDisplay('avatar'));
   },
   moveCamera: function (dx,dy) {
     this.setCamera(this.attr._cameraX + dx,this.attr._cameraY + dy);

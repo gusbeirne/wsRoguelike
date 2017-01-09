@@ -22,8 +22,6 @@ Game.Map.prototype.getTile = function (x,y) {
 };
 
 Game.Map.prototype.renderOn = function (display,camX,camY) {
-  // console.log("display is ");
-  // console.dir(display);
   var dispW = display._options.width;
   var dispH = display._options.height;
   var xStart = camX-Math.round(dispW/2);
