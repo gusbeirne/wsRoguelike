@@ -5,5 +5,5 @@ Game.EntityTemplates = {};
 Game.EntityTemplates.Avatar = {
   name: 'avatar',
   chr:'@',
-  fg:'#dda',
+  fg:'#f00',
 };

@@ -40,6 +40,3 @@ Game.Entity.prototype.setY = function(y) {
 Game.Entity.prototype.getY   = function() {
     return this.attr._y;
 };
-
-
-};
