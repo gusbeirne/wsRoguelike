@@ -75,9 +75,9 @@ Game.UIMode.gamePlay = {
     display.drawText(1,3,"avatar y: "+this.attr._avatar.getY(),fg,bg); // DEV
   },
   moveAvatar: function (dx,dy) {
-    this.attr._avatar.setX(Math.min(Math.max(0,this.attr._avatar.getX() + dx),this.attr._mapWidth));
-    this.attr._avatar.setY( Math.min(Math.max(0,this.attr._avatar.getY() + dy),this.attr._mapHeight));
-    this.setCameraToAvatar();
+    if (this.attr._avatar.tryWalk(this.attr._map,dx,dy)) {
+      this.setCameraToAvatar();
+    }
     this.renderAvatarInfo(Game.getDisplay('avatar'));
   },
   moveCamera: function (dx,dy) {

@@ -9,9 +9,45 @@ Game.Entity = function(template) {
     this._entityID = Game.util.randomString(32);
     Game.ALL_ENTITIES[this._entityID] = this;
 
+    // trait sutff
+    // track traits and groups, copy over non-META properties, and run the trait init if it exists
+    this._traits = template.traits || [];
+    this._traitTracker = {};
+    console.dir(template);
+    console.dir(template.traits);
+    console.dir(this._traits);
+    for (var i = 0; i < this._traits.length; i++) {
+      var trait = this._traits[i];
+      console.dir(trait);
+      this._traitTracker[trait.META.traitName] = true;
+      this._traitTracker[trait.META.traitGroup] = true;
+      for (var traitProp in traitProp != 'META' && trait) {
+        if (traitProp != 'META' && trait.hasOwnProperty(traitProp)) {
+          this[traitProp] = trait[traitProp];
+        }
+      }
+      if (trait.META.hasOwnProperty('stateNamespace')) {
+        this.attr[trait.META.stateNamespace] = {};
+        for (var traitStateProp in trait.META.stateModel) {
+          if (trait.META.stateModel.hasOwnProperty(traitStateProp)) {
+            this.attr[trait.META.stateNamespace][traitStateProp] = trait.META.stateModel[traitStateProp];
+          }
+        }
+      }
+      if (trait.META.hasOwnProperty('init')) {
+        trait.META.init.call(this,template);
+      }
+    }
 };
 Game.Entity.extend(Game.Symbol);
 
+Game.Entity.prototype.hasTrait = function(checkThis) {
+    if (typeof checkThis == 'object') {
+      return this._traitTracker.hasOwnProperty(checkThis.META.traitName);
+    } else {
+      return this._traitTracker.hasOwnProperty(checkThis);
+    }
+};
 
 Game.Entity.prototype.getName = function() {
     return this.attr._name;
