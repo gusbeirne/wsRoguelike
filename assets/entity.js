@@ -76,3 +76,22 @@ Game.Entity.prototype.setY = function(y) {
 Game.Entity.prototype.getY   = function() {
     return this.attr._y;
 };
+Game.Entity.prototype.toJSON = function () {
+  var json = Game.UIMode.gamePersistence.BASE_toJSON.call(this);
+  // for (var i = 0; i < this._mixins; i++) {
+  //   var mixin = this._mixins[i];
+  //   if (mixin.META.toJSON) {
+  //     json['mixin:'+mixin.META.mixinName] = mixin.META.toJSON.call(this);
+  //   }
+  // }
+  return json;
+};
+Game.Entity.prototype.fromJSON = function (json) {
+  Game.UIMode.gamePersistence.BASE_fromJSON.call(this,json);
+  // for (var i = 0; i < this._mixins; i++) {
+  //   var mixin = this._mixins[i];
+  //   if (mixin.META.fromJSON) {
+  //     mixin.META.fromJSON.call(this,json['mixin:'+mixin.META.mixinName]);
+  //   }
+  // }
+};

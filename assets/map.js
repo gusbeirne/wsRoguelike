@@ -38,3 +38,27 @@ Game.Map.prototype.renderOn = function (display,camX,camY) {
     }
   }
 };
+
+Game.Map.prototype.getRandomLocation = function(filter_func) {
+  if (filter_func === undefined) {
+    filter_func = function(tile) { return true; };
+  }
+  var tX,tY,t;
+  do {
+    tX = Game.util.randomInt(0,this.attr._width - 1);
+    tY = Game.util.randomInt(0,this.attr._height - 1);
+    t = this.getTile(tX,tY);
+  } while (! filter_func(t));
+  return {x:tX,y:tY};
+};
+
+Game.Map.prototype.getRandomWalkableLocation = function() {
+  return this.getRandomLocation(function(t){ return t.isWalkable(); });
+};
+
+Game.Map.prototype.toJSON = function () {
+
+};
+Game.Map.prototype.fromJSON = function (json) {
+
+};

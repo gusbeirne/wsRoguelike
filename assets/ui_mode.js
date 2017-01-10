@@ -47,7 +47,7 @@ Game.UIMode.gamePlay = {
     _cameraY: 100,
     _avatar: null,
   },
-
+  JSON_KEY: 'uiMode_gamePlay',
   enter: function () {
     console.log('gameplay begining');
     Game.Message.clear();
@@ -78,7 +78,6 @@ Game.UIMode.gamePlay = {
     if (this.attr._avatar.tryWalk(this.attr._map,dx,dy)) {
       this.setCameraToAvatar();
     }
-    this.renderAvatarInfo(Game.getDisplay('avatar'));
   },
   moveCamera: function (dx,dy) {
     this.setCamera(this.attr._cameraX + dx,this.attr._cameraY + dy);
@@ -139,14 +138,24 @@ Game.UIMode.gamePlay = {
        mapTiles[x][y] = Game.Tile.wallTile;
      }
    });
-
    // create map from the tiles
     this.attr._map =  new Game.Map(mapTiles);
-
     this.attr._avatar = new Game.Entity(Game.EntityTemplates.Avatar);
-    this.attr._avatar.setPos(100,100);
+    // Restore the game from restorationData or create a new game
+    if (restorationData !== undefined && restorationData.hasOwnProperty(Game.UIMode.gamePlay.JSON_KEY)) {
+      this.fromJSON(restorationData[Game.UIMode.gamePlay.JSON_KEY]);
+    } else {
+      this.attr._avatar.setPos(this.attr._map.getRandomWalkableLocation());
+    }
+    this.setCameraToAvatar();
  },
 
+ toJSON: function() {
+    return Game.UIMode.gamePersistence.BASE_toJSON.call(this);
+  },
+  fromJSON: function (json) {
+    Game.UIMode.gamePersistence.BASE_fromJSON.call(this,json);
+  },
 
 };
 
@@ -218,6 +227,7 @@ Game.UIMode.gamePersistence = {
     if (this.localStorageAvailable()) {
       window.localStorage.setItem(Game._PERSISTANCE_NAMESPACE, JSON.stringify(Game._game)); // .toJSON()
       Game.switchUIMode(Game.UIMode.gamePlay);
+      console.log(JSON.stringify(Game._game));
     }
   },
   restoreGame: function () {
@@ -225,7 +235,7 @@ Game.UIMode.gamePersistence = {
       var json_state_data = window.localStorage.getItem(Game._PERSISTANCE_NAMESPACE);
       var state_data = JSON.parse(json_state_data);
       Game.setRandomSeed(state_data._randomSeed);
-      Game.UIMode.gamePlay.setupPlay();
+      Game.UIMode.gamePlay.setupPlay(state_data);
       Game.switchUIMode(Game.UIMode.gamePlay);
     }
   },
@@ -245,6 +255,38 @@ Game.UIMode.gamePersistence = {
       Game.Message.send('Sorry, no local data storage is available for this browser');
   		return false;
   	}
+  },
+  BASE_toJSON: function(state_hash_name) {
+    var state = this.attr;
+    if (state_hash_name) {
+      state = this[state_hash_name];
+    }
+    var json = {};
+    for (var at in state) {
+      if (state.hasOwnProperty(at)) {
+        if (state[at] instanceof Object && 'toJSON' in state[at]) {
+          json[at] = state[at].toJSON();
+        } else {
+          json[at] = state[at];
+        }
+      }
+    }
+    return json;
+  },
+  BASE_fromJSON: function (json,state_hash_name) {
+    var using_state_hash = 'attr';
+    if (state_hash_name) {
+      using_state_hash = state_hash_name;
+    }
+    for (var at in this[using_state_hash]) {
+      if (this[using_state_hash].hasOwnProperty(at)) {
+        if (this[using_state_hash][at] instanceof Object && 'fromJSON' in this[using_state_hash][at]) {
+          this[using_state_hash][at].fromJSON(json[at]);
+        } else {
+          this[using_state_hash][at] = json[at];
+        }
+      }
+    }
   }
 
 };
