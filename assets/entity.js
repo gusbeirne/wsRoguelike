@@ -1,3 +1,5 @@
+Game.ALL_ENTITIES = {};
+
 Game.Entity = function(template) {
     template = template || {};
     Game.Symbol.call(this, template);
@@ -8,6 +10,8 @@ Game.Entity = function(template) {
 
     this._entityID = Game.util.randomString(32);
     Game.ALL_ENTITIES[this._entityID] = this;
+
+    this._map = null;
 
     // trait sutff
     // track traits and groups, copy over non-META properties, and run the trait init if it exists
@@ -49,6 +53,17 @@ Game.Entity.prototype.hasTrait = function(checkThis) {
     }
 };
 
+Game.Entity.prototype.getId = function() {
+    return this._entityID;
+};
+
+Game.Entity.prototype.getMap = function() {
+    return this._map;
+};
+Game.Entity.prototype.setMap = function(map) {
+    this._map = map;
+};
+
 Game.Entity.prototype.getName = function() {
     return this.attr._name;
 };
@@ -63,6 +78,10 @@ Game.Entity.prototype.setPos = function(x_or_xy,y) {
     this.attr._x = x_or_xy;
     this.attr._y = y;
   }
+  
+};
+Game.Entity.prototype.getPos = function () {
+  return {x:this.attr._x,y:this.attr._y};
 };
 Game.Entity.prototype.getX = function() {
     return this.attr._x;

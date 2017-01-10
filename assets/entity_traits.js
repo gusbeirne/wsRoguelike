@@ -12,6 +12,9 @@ Game.EntityTrait.WalkerCorporeal = {
     var targetY = Math.min(Math.max(0,this.getY() + dy),map.getHeight());
     if (map.getTile(targetX,targetY).isWalkable()) {
       this.setPos(targetX,targetY);
+      if (this._map) {
+        this._map.updateEntityLocation(this);
+      }
       if (this.hasTrait('Chronicle')) { // NOTE: this is sub-optimal because it couple this Trait to the Chronicle one (i.e. this needs to know the Chronicle function to call) - the event system will solve this issue
         this.trackTurn();
       }

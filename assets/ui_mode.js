@@ -62,12 +62,14 @@ Game.UIMode.gamePlay = {
     display.drawText(19,15,"Press L to Lose");
 
     this.attr._map.renderOn(display,this.attr._cameraX,this.attr._cameraY);
-    this.renderAvatar(display);
+    //this.renderAvatar(display);
   },
-  renderAvatar: function (display) {
-    Game.Symbol.AVATAR.draw(display,this.attr._avatar.getX()-this.attr._cameraX+display._options.width/2,
-                                    this.attr._avatar.getY()-this.attr._cameraY+display._options.height/2);
-  },
+
+  // renderAvatar: function (display) {
+  //   Game.Symbol.AVATAR.draw(display,this.attr._avatar.getX()-this.attr._cameraX+display._options.width/2,
+  //                                   this.attr._avatar.getY()-this.attr._cameraY+display._options.height/2);
+  // },
+
   renderAvatarInfo: function (display) {
     var fg = Game.UIMode.DEFAULT_COLOR_FG;
     var bg = Game.UIMode.DEFAULT_COLOR_BG;
@@ -125,10 +127,11 @@ Game.UIMode.gamePlay = {
       }
     }
   },
+
+
   setupPlay: function (restorationData) {
    var mapTiles = Game.util.init2DArray(this.attr._mapWidth,this.attr._mapHeight,Game.Tile.nullTile);
    var generator = new ROT.Map.Uniform(this.attr._mapWidth,this.attr._mapHeight);
-
 
    // run again then update map
    generator.create(function(x,y,v) {
@@ -140,15 +143,26 @@ Game.UIMode.gamePlay = {
    });
    // create map from the tiles
     this.attr._map =  new Game.Map(mapTiles);
-    this.attr._avatar = new Game.Entity(Game.EntityTemplates.Avatar);
+
+    this.attr._avatar = Game.EntityGenerator.create('avatar');
+    this.attr._avatar.setMap(this.attr._map);
+
     // Restore the game from restorationData or create a new game
     if (restorationData !== undefined && restorationData.hasOwnProperty(Game.UIMode.gamePlay.JSON_KEY)) {
       this.fromJSON(restorationData[Game.UIMode.gamePlay.JSON_KEY]);
+      // TODO: restore all entities
+      this.attr._map.updateEntityLocation(this.attr._avatar);
     } else {
       this.attr._avatar.setPos(this.attr._map.getRandomWalkableLocation());
+      this.attr._map.updateEntityLocation(this.attr._avatar);
+      // dev code - just add some entities to the map
+      // for (var ecount = 0; ecount < 80; ecount++) {
+      //   this.attr._map.addEntity(Game.EntityGenerator.create('debris'),this.attr._map.getRandomWalkableLocation());
+      // }
     }
     this.setCameraToAvatar();
  },
+
 
  toJSON: function() {
     return Game.UIMode.gamePersistence.BASE_toJSON.call(this);
