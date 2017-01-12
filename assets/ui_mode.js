@@ -41,13 +41,14 @@ Game.UIMode.gamePlay = {
 
   attr: {
     _map: null,
-    _mapWidth: 300,
-    _mapHeight: 200,
+    _mapWidth: 30,
+    _mapHeight: 20,
     _cameraX: 100,
     _cameraY: 100,
     _avatar: null,
   },
   JSON_KEY: 'uiMode_gamePlay',
+
   enter: function () {
     console.log('gameplay begining');
     Game.Message.clear();
@@ -130,6 +131,7 @@ Game.UIMode.gamePlay = {
 
 
   setupPlay: function (restorationData) {
+    console.dir (restorationData);
    var mapTiles = Game.util.init2DArray(this.attr._mapWidth,this.attr._mapHeight,Game.Tile.nullTile);
    var generator = new ROT.Map.Uniform(this.attr._mapWidth,this.attr._mapHeight);
 
@@ -150,15 +152,24 @@ Game.UIMode.gamePlay = {
     // Restore the game from restorationData or create a new game
     if (restorationData !== undefined && restorationData.hasOwnProperty(Game.UIMode.gamePlay.JSON_KEY)) {
       this.fromJSON(restorationData[Game.UIMode.gamePlay.JSON_KEY]);
-      // TODO: restore all entities
-      this.attr._map.updateEntityLocation(this.attr._avatar);
+      for (var entityId in restorationData.ENTITY) {
+        if (restorationData.ENTITY.hasOwnProperty(entityId)) {
+          console.log(restorationData.ENTITY[entityId]);
+          var entAttr = restorationData.ENTITY[entityId];
+          Game.DATASTORE.ENTITY[entityId] = Game.EntityGenerator.create(entAttr._generator_template_key);
+          //Game.DATASTORE.ENTITY[entityId].attr = entAttr;
+          Game.DATASTORE.ENTITY[entityId].fromJSON(restorationData.ENTITY[entityId]);
+          this.attr._map.updateEntityLocation(Game.DATASTORE.ENTITY[entityId]);
+        }
+      }
+      //this.attr._map.updateEntityLocation(this.attr._avatar);
     } else {
       this.attr._avatar.setPos(this.attr._map.getRandomWalkableLocation());
       this.attr._map.updateEntityLocation(this.attr._avatar);
-      // dev code - just add some entities to the map
-      // for (var ecount = 0; ecount < 80; ecount++) {
-      //   this.attr._map.addEntity(Game.EntityGenerator.create('debris'),this.attr._map.getRandomWalkableLocation());
-      // }
+      //dev code - just add some entities to the map
+      for (var ecount = 0; ecount < 1; ecount++) {
+        this.attr._map.addEntity(Game.EntityGenerator.create('debris'),this.attr._map.getRandomWalkableLocation());
+      }
     }
     this.setCameraToAvatar();
  },
@@ -239,13 +250,15 @@ Game.UIMode.gamePersistence = {
   },
   saveGame: function (json_state_data) {
     if (this.localStorageAvailable()) {
-      window.localStorage.setItem(Game._PERSISTANCE_NAMESPACE, JSON.stringify(Game._game)); // .toJSON()
+      Game.DATASTORE[Game.UIMode.gamePlay.JSON_KEY] = Game.UIMode.gamePlay.attr;
+      window.localStorage.setItem(Game._PERSISTANCE_NAMESPACE, JSON.stringify(Game.DATASTORE)); // .toJSON()
       Game.switchUIMode(Game.UIMode.gamePlay);
       console.log(JSON.stringify(Game._game));
     }
   },
   restoreGame: function () {
     if (this.localStorageAvailable()) {
+      Game.clearDatastore();
       var json_state_data = window.localStorage.getItem(Game._PERSISTANCE_NAMESPACE);
       var state_data = JSON.parse(json_state_data);
       Game.setRandomSeed(state_data._randomSeed);
@@ -254,6 +267,7 @@ Game.UIMode.gamePersistence = {
     }
   },
   newGame: function () {
+    Game.clearDatastore();
     Game.setRandomSeed(5 + Math.floor(ROT.RNG.getUniform()*100000));
     Game.UIMode.gamePlay.setupPlay();
     Game.switchUIMode(Game.UIMode.gamePlay);

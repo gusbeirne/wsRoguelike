@@ -1,7 +1,7 @@
 console.log("game.js loaded");
 
 window.onload = function(){
-  console.log("starting wsRoguelike - window loaded");
+  //console.log("starting wsRoguelike - window loaded");
   // Check if rot.js can work on this browser
   if(!ROT.isSupported()){
     alert("The rot.js library isn't supported by your browser.");
@@ -49,7 +49,8 @@ var Game = {
   },
 
   _curUiMode: null,
-  _randomSeed: 0,
+
+  DATASTORE: {_randomSeed: 0},
 
   _game: null,
   _PERSISTANCE_NAMESPACE: 'wsRoguelikeSave',
@@ -129,13 +130,13 @@ var Game = {
   },
 
   getRandomSeed: function () {
-  return this._randomSeed;
+  return this.DATASTORE._randomSeed;
   },
 
   setRandomSeed: function (s) {
-    this._randomSeed = s;
-    console.log("using random seed "+this._randomSeed);
-    ROT.RNG.setSeed(this._randomSeed);
+    this.DATASTORE._randomSeed = s;
+    console.log("using random seed "+this.DATASTORE._randomSeed);
+    ROT.RNG.setSeed(this.DATASTORE._randomSeed);
   },
 
   toJSON: function() {
@@ -143,6 +144,12 @@ var Game = {
     json._randomSeed = this._randomSeed;
     json[Game.UIMode.gamePlay.JSON_KEY] = Game.UIMode.gamePlay.toJSON();
     return json;
-  }
+  },
+
+  clearDatastore: function() {
+    this.setRandomSeed(5 + Math.floor(ROT.RNG.getUniform()*100000));
+    this.DATASTORE.ENTITY = {};
+    this.DATASTORE.MAP = {};
+  },
 
 };
